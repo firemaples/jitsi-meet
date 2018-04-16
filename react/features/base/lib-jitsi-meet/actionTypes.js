@@ -28,6 +28,16 @@ export const LIB_DID_INIT = Symbol('LIB_DID_INIT');
 export const LIB_INIT_ERROR = Symbol('LIB_INIT_ERROR');
 
 /**
+ * Action to dispatch the promise returned by JitsiMeetJS.init.
+ *
+ * {
+ *     type: LIB_INIT_ERROR,
+ *     initPromise: Promise
+ * }
+ */
+export const LIB_INIT_POMISE_CREATED = Symbol('LIB_INIT_POMISE_CREATED');
+
+/**
  * The type of Redux action which signals that {@link JitsiMeetJS} will be
  * disposed.
  *

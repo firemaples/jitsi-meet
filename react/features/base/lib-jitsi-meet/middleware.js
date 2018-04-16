@@ -9,6 +9,8 @@ import { disposeLib, initLib, setWebRTCReady } from './actions';
 import { LIB_DID_INIT, LIB_INIT_ERROR } from './actionTypes';
 import { WEBRTC_NOT_READY, WEBRTC_NOT_SUPPORTED } from './constants';
 
+declare var APP: Object;
+
 /**
  * Middleware that captures PARTICIPANT_LEFT action for a local participant
  * (which signalizes that we finally left the app) and disposes lib-jitsi-meet.
@@ -22,7 +24,11 @@ import { WEBRTC_NOT_READY, WEBRTC_NOT_SUPPORTED } from './constants';
 MiddlewareRegistry.register(store => next => action => {
     switch (action.type) {
     case LIB_DID_INIT:
-        store.dispatch(setWebRTCReady(true));
+        // The web version doesn't need this action during initialization
+        // because it is still using the old logic from conference.js.
+        if (typeof APP === 'undefined') {
+            store.dispatch(setWebRTCReady(true));
+        }
         break;
 
     case LIB_INIT_ERROR:

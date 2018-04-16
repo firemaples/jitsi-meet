@@ -21,7 +21,6 @@ import {
     createSelectParticipantFailedEvent,
     createStreamSwitchDelayEvent,
     createTrackMutedEvent,
-    initAnalytics,
     sendAnalytics
 } from './react/features/analytics';
 import {
@@ -48,7 +47,6 @@ import {
 } from './react/features/base/conference';
 import { updateDeviceList } from './react/features/base/devices';
 import {
-    isAnalyticsEnabled,
     isFatalJitsiConnectionError,
     JitsiConferenceErrors,
     JitsiConferenceEvents,
@@ -684,7 +682,9 @@ export default {
     /**
      * Open new connection and join to the conference.
      * @param {object} options
-     * @param {string} roomName name of the conference
+     * @param {string} roomName - The name of the conference.
+     * @param {Promise} ljmInitPromise - The promise returned by
+     * JitsiMeetJS.init.
      * @returns {Promise}
      */
     init(options) {
@@ -717,20 +717,15 @@ export default {
         }
 
         return (
-            JitsiMeetJS.init({
-                enableAnalyticsLogging: isAnalyticsEnabled(APP.store),
-                ...config
-            }).then(() => {
-                initAnalytics(APP.store);
-
-                return this.createInitialLocalTracksAndConnect(
+            options.ljmInitPromise.then(() =>
+                this.createInitialLocalTracksAndConnect(
                     options.roomName, {
                         startAudioOnly: config.startAudioOnly,
                         startScreenSharing: config.startScreenSharing,
                         startWithAudioMuted: config.startWithAudioMuted,
                         startWithVideoMuted: config.startWithVideoMuted
-                    });
-            })
+                    })
+            )
             .then(([ tracks, con ]) => {
                 tracks.forEach(track => {
                     if ((track.isAudioTrack() && this.isLocalAudioMuted())

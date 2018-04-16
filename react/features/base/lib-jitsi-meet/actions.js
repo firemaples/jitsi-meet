@@ -7,6 +7,7 @@ import {
     LIB_DID_DISPOSE,
     LIB_DID_INIT,
     LIB_INIT_ERROR,
+    LIB_INIT_POMISE_CREATED,
     LIB_WILL_DISPOSE,
     LIB_WILL_INIT,
     SET_WEBRTC_READY
@@ -44,19 +45,22 @@ export function initLib() {
             throw new Error('Cannot init lib-jitsi-meet without config');
         }
 
-        // FIXME Until the logic of conference.js is rewritten into the React
-        // app we, JitsiMeetJS.init is to not be used for the React app.
-        if (typeof APP !== 'undefined') {
-            return Promise.resolve();
+        if (typeof APP === 'undefined') {
+            dispatch({ type: LIB_WILL_INIT });
         }
 
-        dispatch({ type: LIB_WILL_INIT });
+        const initPromise = JitsiMeetJS.init({
+            enableAnalyticsLogging: isAnalyticsEnabled(getState),
+            ...config
+        });
+
+        dispatch({
+            type: LIB_INIT_POMISE_CREATED,
+            initPromise
+        });
 
         return (
-            JitsiMeetJS.init({
-                enableAnalyticsLogging: isAnalyticsEnabled(getState),
-                ...config
-            })
+            initPromise
                 .then(() => dispatch({ type: LIB_DID_INIT }))
                 .catch(error => {
                     dispatch(libInitError(error));
