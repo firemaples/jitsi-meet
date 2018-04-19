@@ -7,7 +7,7 @@ import {
     LIB_DID_DISPOSE,
     LIB_DID_INIT,
     LIB_INIT_ERROR,
-    LIB_INIT_POMISE_CREATED,
+    LIB_INIT_PROMISE_CREATED,
     LIB_WILL_DISPOSE,
     LIB_WILL_INIT,
     SET_WEBRTC_READY
@@ -55,7 +55,7 @@ export function initLib() {
         });
 
         dispatch({
-            type: LIB_INIT_POMISE_CREATED,
+            type: LIB_INIT_PROMISE_CREATED,
             initPromise
         });
 

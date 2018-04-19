@@ -6,7 +6,7 @@ import {
     LIB_DID_DISPOSE,
     LIB_DID_INIT,
     LIB_INIT_ERROR,
-    LIB_INIT_POMISE_CREATED,
+    LIB_INIT_PROMISE_CREATED,
     SET_WEBRTC_READY
 } from './actionTypes';
 
@@ -38,7 +38,7 @@ ReducerRegistry.register(
                 initialized: false
             };
 
-        case LIB_INIT_POMISE_CREATED:
+        case LIB_INIT_PROMISE_CREATED:
             return {
                 ...state,
                 initPromise: action.initPromise
