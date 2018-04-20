@@ -99,9 +99,48 @@ function _initLogging(loggingConfig) {
  * specified {@code action}.
  */
 function _libWillInit({ getState }, next, action) {
-    _setLogLevels(JitsiMeetJS, getState()['features/base/logging'].config);
+    // Adding the if in order to preserve the original logic after enabling
+    // LIB_WILL_INIT for the web version.
+    if (typeof APP === 'undefined') {
+        _setLogLevels(JitsiMeetJS, getState()['features/base/logging'].config);
+    } else {
+        _setErrorHandlers();
+    }
 
     return next(action);
+}
+
+/**
+ * Attaches our custom error handlers to the window object.
+ *
+ * @returns {void}
+ */
+function _setErrorHandlers() {
+    // attaches global error handler, if there is already one, respect it
+    if (JitsiMeetJS.getGlobalOnErrorHandler) {
+        const oldOnErrorHandler = window.onerror;
+
+        // eslint-disable-next-line max-params
+        window.onerror = (message, source, lineno, colno, error) => {
+            JitsiMeetJS.getGlobalOnErrorHandler(
+                message, source, lineno, colno, error);
+
+            if (oldOnErrorHandler) {
+                oldOnErrorHandler(message, source, lineno, colno, error);
+            }
+        };
+
+        const oldOnUnhandledRejection = window.onunhandledrejection;
+
+        window.onunhandledrejection = function(event) {
+            JitsiMeetJS.getGlobalOnErrorHandler(
+                null, null, null, null, event.reason);
+
+            if (oldOnUnhandledRejection) {
+                oldOnUnhandledRejection(event);
+            }
+        };
+    }
 }
 
 /**

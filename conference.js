@@ -683,49 +683,19 @@ export default {
      * Open new connection and join to the conference.
      * @param {object} options
      * @param {string} roomName - The name of the conference.
-     * @param {Promise} ljmInitPromise - The promise returned by
-     * JitsiMeetJS.init.
      * @returns {Promise}
      */
     init(options) {
         this.roomName = options.roomName;
 
-        // attaches global error handler, if there is already one, respect it
-        if (JitsiMeetJS.getGlobalOnErrorHandler) {
-            const oldOnErrorHandler = window.onerror;
-
-            // eslint-disable-next-line max-params
-            window.onerror = (message, source, lineno, colno, error) => {
-                JitsiMeetJS.getGlobalOnErrorHandler(
-                    message, source, lineno, colno, error);
-
-                if (oldOnErrorHandler) {
-                    oldOnErrorHandler(message, source, lineno, colno, error);
-                }
-            };
-
-            const oldOnUnhandledRejection = window.onunhandledrejection;
-
-            window.onunhandledrejection = function(event) {
-                JitsiMeetJS.getGlobalOnErrorHandler(
-                    null, null, null, null, event.reason);
-
-                if (oldOnUnhandledRejection) {
-                    oldOnUnhandledRejection(event);
-                }
-            };
-        }
-
         return (
-            options.ljmInitPromise.then(() =>
-                this.createInitialLocalTracksAndConnect(
-                    options.roomName, {
-                        startAudioOnly: config.startAudioOnly,
-                        startScreenSharing: config.startScreenSharing,
-                        startWithAudioMuted: config.startWithAudioMuted,
-                        startWithVideoMuted: config.startWithVideoMuted
-                    })
-            )
+            this.createInitialLocalTracksAndConnect(
+                options.roomName, {
+                    startAudioOnly: config.startAudioOnly,
+                    startScreenSharing: config.startScreenSharing,
+                    startWithAudioMuted: config.startWithAudioMuted,
+                    startWithVideoMuted: config.startWithVideoMuted
+                })
             .then(([ tracks, con ]) => {
                 tracks.forEach(track => {
                     if ((track.isAudioTrack() && this.isLocalAudioMuted())

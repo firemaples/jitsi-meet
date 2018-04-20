@@ -34,10 +34,9 @@ export function connect() {
 
         // XXX For web based version we use conference initialization logic
         // from the old app (at the moment of writing).
-        return APP.conference.init({
-            roomName: room,
-            ljmInitPromise: initPromise
-        }).catch(error => {
+        return initPromise.then(() => APP.conference.init({
+            roomName: room
+        })).catch(error => {
             APP.API.notifyConferenceLeft(APP.conference.roomName);
             logger.error(error);
 

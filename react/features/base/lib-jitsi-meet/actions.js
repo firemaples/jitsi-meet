@@ -45,9 +45,7 @@ export function initLib() {
             throw new Error('Cannot init lib-jitsi-meet without config');
         }
 
-        if (typeof APP === 'undefined') {
-            dispatch({ type: LIB_WILL_INIT });
-        }
+        dispatch({ type: LIB_WILL_INIT });
 
         const initPromise = JitsiMeetJS.init({
             enableAnalyticsLogging: isAnalyticsEnabled(getState),
