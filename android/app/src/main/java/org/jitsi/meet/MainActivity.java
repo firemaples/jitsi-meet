@@ -114,7 +114,8 @@ public class MainActivity extends JitsiMeetActivity {
         super.setContentView(view);
         if (view instanceof JitsiMeetView) {
             Bundle bundle = new Bundle();
-            bundle.putString("url", "https://meet.jit.si/mytest1234");
+//            bundle.putString("url", "https://meet.jit.si/mytest1234");
+            bundle.putString("url", "https://meet.buddydo.us:7443/louistest");
             bundle.putString("displayName", "MyName" + System.currentTimeMillis());
             bundle.putString("email", "test@test.com");
             bundle.putString("avatarURL", "https://www.google.com.tw/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png");
