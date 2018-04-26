@@ -18,6 +18,9 @@ package org.jitsi.meet;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+
+import com.calendarevents.CalendarEventsPackage;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetView;
@@ -104,6 +107,20 @@ public class MainActivity extends JitsiMeetActivity {
         setWelcomePageEnabled(true);
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        if (view instanceof JitsiMeetView) {
+            Bundle bundle = new Bundle();
+            bundle.putString("url", "https://meet.jit.si/mytest1234");
+            bundle.putString("displayName", "MyName" + System.currentTimeMillis());
+            bundle.putString("email", "test@test.com");
+            bundle.putString("avatarURL", "https://www.google.com.tw/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png");
+
+            ((JitsiMeetView) view).loadURLObject(bundle);
+        }
     }
 
     @Override
