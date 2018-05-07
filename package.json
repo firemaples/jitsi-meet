@@ -113,7 +113,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "lint": "eslint . && flow",
-    "validate": "npm ls"
+    "validate": "npm ls",
+    "build": "webpack --config webpack.config.js",
+    "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "pre-commit": [
     "lint"
