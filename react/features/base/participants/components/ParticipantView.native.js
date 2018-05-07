@@ -24,6 +24,8 @@ import {
 } from '../functions';
 import styles from './styles';
 
+import { isDataSchema } from './extendedAvatar';
+
 /**
  * The type of the React {@link Component} props of {@link ParticipantView}.
  */
@@ -339,7 +341,7 @@ function _mapStateToProps(state, ownProps) {
 
         // ParticipantView knows before Avatar that an avatar URL will be used
         // so it's advisable to prefetch here.
-        avatar && prefetch({ uri: avatar });
+        avatar && !isDataSchema(avatar) && prefetch({ uri: avatar });
     }
 
     return {

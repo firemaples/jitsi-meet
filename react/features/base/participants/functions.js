@@ -8,6 +8,9 @@ import {
     LOCAL_PARTICIPANT_DEFAULT_ID
 } from './constants';
 
+import { isExtendedSchema, parseExtendedAvatar }
+    from './components/extendedAvatar';
+
 declare var config: Object;
 declare var interfaceConfig: Object;
 
@@ -38,6 +41,10 @@ export function getAvatarURL({ avatarID, avatarURL, email, id }: {
 
     // If an avatarURL is specified, then obviously there's nothing to generate.
     if (avatarURL) {
+        if (isExtendedSchema(avatarURL)) {
+            return parseExtendedAvatar(avatarURL);
+        }
+
         return avatarURL;
     }
 

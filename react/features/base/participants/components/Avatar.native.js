@@ -9,6 +9,8 @@ import { ColorPalette } from '../../styles';
 
 import styles from './styles';
 
+import { isDataSchema } from './extendedAvatar';
+
 /**
  * The default image/source to be used in case none is specified or the
  * specified one fails to load.
@@ -143,7 +145,7 @@ export default class Avatar extends Component<Props, State> {
                 };
 
                 // Wait for the source/URI to load.
-                if (ImageCache) {
+                if (ImageCache && !isDataSchema(nextURI)) {
                     ImageCache.get().on(
                         nextSource,
                         observer,
@@ -298,7 +300,9 @@ export default class Avatar extends Component<Props, State> {
 
                 // XXX CachedImage removed support for images which clearly do
                 // not need caching.
-                typeof source === 'number' ? Image : CachedImage,
+                typeof source === 'number'
+                    || (source && isDataSchema(source.uri))
+                    ? Image : CachedImage,
                 {
                     ...props,
 
