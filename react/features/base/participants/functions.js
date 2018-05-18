@@ -8,6 +8,11 @@ import {
     LOCAL_PARTICIPANT_DEFAULT_ID
 } from './constants';
 
+import {
+    isCustomAvatarID,
+    generateUserPhoto
+} from '../../native-bridge';
+
 declare var config: Object;
 declare var interfaceConfig: Object;
 
@@ -30,10 +35,20 @@ export function getAvatarURL({ avatarID, avatarURL, email, id }: {
         email: string,
         id: string
 }) {
+    console.log(`getAvatarURL, avatarID: ${avatarID}, avatarURL: ${avatarURL}`);
+
     // If disableThirdPartyRequests disables third-party avatar services, we are
     // restricted to a stock image of ours.
     if (typeof config === 'object' && config.disableThirdPartyRequests) {
         return DEFAULT_AVATAR_RELATIVE_PATH;
+    }
+
+    if (!avatarURL && isCustomAvatarID(avatarID)) {
+        const result = generateUserPhoto(avatarID);
+
+        if (result) {
+            return result;
+        }
     }
 
     // If an avatarURL is specified, then obviously there's nothing to generate.

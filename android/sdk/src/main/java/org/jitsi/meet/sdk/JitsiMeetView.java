@@ -27,6 +27,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import com.RNFetchBlob.RNFetchBlobPackage;
+import com.calendarevents.CalendarEventsPackage;
+import com.corbt.keepawake.KCKeepAwakePackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactRootView;
 import com.facebook.react.bridge.NativeModule;
@@ -34,17 +37,29 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.LifecycleState;
+import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.shell.MainReactPackage;
+import com.i18n.reactnativei18n.ReactNativeI18n;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.ocetnik.timer.BackgroundTimerPackage;
+import com.oney.WebRTCModule.WebRTCModulePackage;
 import com.rnimmersive.RNImmersiveModule;
+import com.rnimmersive.RNImmersivePackage;
+import com.zmxv.RNSound.RNSoundPackage;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.stream.Stream;
 
 public class JitsiMeetView extends FrameLayout {
     /**
@@ -68,6 +83,8 @@ public class JitsiMeetView extends FrameLayout {
     private static final Set<JitsiMeetView> views
         = Collections.newSetFromMap(new WeakHashMap<JitsiMeetView, Boolean>());
 
+    private static final List<Class<? extends NativeModule>> customNativeModules = new ArrayList<>();
+
     private static List<NativeModule> createNativeModules(
             ReactApplicationContext reactContext) {
         return Arrays.<NativeModule>asList(
@@ -80,6 +97,10 @@ public class JitsiMeetView extends FrameLayout {
             new WiFiStatsModule(reactContext),
             new org.jitsi.meet.sdk.net.NAT64AddrInfoModule(reactContext)
         );
+    }
+
+    public static void registerCustomBridgeModules(Class<? extends NativeModule> nativeModule){
+        customNativeModules.add(nativeModule);
     }
 
     public static JitsiMeetView findViewByExternalAPIScope(
@@ -128,7 +149,26 @@ public class JitsiMeetView extends FrameLayout {
                     @Override
                     public List<NativeModule> createNativeModules(
                             ReactApplicationContext reactContext) {
-                        return JitsiMeetView.createNativeModules(reactContext);
+                        List<NativeModule> nativeModules =
+                                new ArrayList<>(JitsiMeetView.createNativeModules(reactContext));
+                        for (Class<? extends NativeModule> moduleClass : customNativeModules) {
+                            try {
+                                Constructor<? extends NativeModule> constructor =
+                                        moduleClass.getConstructor(ReactApplicationContext.class);
+                                NativeModule nativeModule = constructor.newInstance(reactContext);
+
+                                nativeModules.add(nativeModule);
+                            } catch (NoSuchMethodException e) {
+                                e.printStackTrace();
+                            }catch (InstantiationException e) {
+                                e.printStackTrace();
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return nativeModules;
                     }
                 })
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
