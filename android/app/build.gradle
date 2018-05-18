@@ -36,8 +36,11 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':sdk')
+    implementation(project(':sdk')){
+        exclude group: 'com.facebook.react', module: 'react-native'
+    }
 
     debugCompile 'com.facebook.stetho:stetho:1.5.0'
     debugCompile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    compile 'com.facebook.react:react-native:0.51.0'
 }
