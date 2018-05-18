@@ -23,6 +23,8 @@ import { BlankPage } from '../../welcome';
 
 import { appNavigate, appWillMount, appWillUnmount } from '../actions';
 
+import { setupNativeBridge } from '../../native-bridge';
+
 /**
  * The default URL to open if no other was specified to {@code AbstractApp}
  * via props.
@@ -152,6 +154,10 @@ export class AbstractApp extends Component {
                     = profile.email || localParticipant.email;
                 localParticipant.name
                     = profile.displayName || localParticipant.name;
+                localParticipant.avatarURL
+                    = profile.avatarURL || localParticipant.avatarURL;
+                localParticipant.avatarID
+                    = profile.avatarID || localParticipant.avatarID;
             }
 
             // We set the initialized state here and not in the contructor to
@@ -424,6 +430,11 @@ export class AbstractApp extends Component {
 
         if (typeof store === 'undefined') {
             store = this._createStore();
+
+            // Setup user info for native app
+            if (typeof APP === 'undefined') {
+                setupNativeBridge(store, props);
+            }
 
             // This is temporary workaround to be able to dispatch actions from
             // non-reactified parts of the code (conference.js for example).

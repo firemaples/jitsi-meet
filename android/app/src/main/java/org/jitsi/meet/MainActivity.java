@@ -16,14 +16,17 @@
 
 package org.jitsi.meet;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import com.calendarevents.CalendarEventsPackage;
+
+import org.jitsi.meet.bridge.NativeBridge;
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetView;
 import org.jitsi.meet.sdk.JitsiMeetViewListener;
-
-import com.calendarevents.CalendarEventsPackage;
 
 import java.util.Map;
 
@@ -33,7 +36,7 @@ import java.util.Map;
  * created upon application initialization and there will be a single instance
  * of it. Further attempts at launching the application once it was already
  * launched will result in {@link Activity#onNewIntent(Intent)} being called.
- *
+ * <p>
  * This {@code Activity} extends {@link JitsiMeetActivity} to keep the React
  * Native CLI working, since the latter always tries to launch an
  * {@code Activity} named {@code MainActivity} when doing
@@ -42,6 +45,7 @@ import java.util.Map;
 public class MainActivity extends JitsiMeetActivity {
     @Override
     protected JitsiMeetView initializeView() {
+        JitsiMeetView.registerCustomBridgeModules(NativeBridge.class);
         JitsiMeetView view = super.initializeView();
 
         // XXX In order to increase (1) awareness of API breakages and (2) API
@@ -53,10 +57,10 @@ public class MainActivity extends JitsiMeetActivity {
                     // Log with the tag "ReactNative" in order to have the log
                     // visible in react-native log-android as well.
                     Log.d(
-                        "ReactNative",
-                        JitsiMeetViewListener.class.getSimpleName() + " "
-                            + name + " "
-                            + data);
+                            "ReactNative",
+                            JitsiMeetViewListener.class.getSimpleName() + " "
+                                    + name + " "
+                                    + data);
                 }
 
                 @Override
@@ -82,6 +86,7 @@ public class MainActivity extends JitsiMeetActivity {
                 @Override
                 public void onConferenceWillLeave(Map<String, Object> data) {
                     on("CONFERENCE_WILL_LEAVE", data);
+                    finishAffinity();
                 }
 
                 @Override
@@ -101,14 +106,41 @@ public class MainActivity extends JitsiMeetActivity {
 
         // The welcome page defaults to disabled in the SDK at the time of this
         // writing but it is clearer to be explicit about what we want anyway.
-        setWelcomePageEnabled(true);
+        setWelcomePageEnabled(false);
 
         super.onCreate(savedInstanceState);
     }
 
+
     @Override
-  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-      CalendarEventsPackage.onRequestPermissionsResult(requestCode, permissions, grantResults);
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-  }
+    public void setContentView(View view) {
+        super.setContentView(view);
+        if (view instanceof JitsiMeetView) {
+            Bundle bundle = new Bundle();
+            bundle.putString("url", "https://meet.jit.si/mytest1234");
+
+            Bundle config = new Bundle();
+            config.putBoolean("startWithAudioMuted", false);
+            config.putBoolean("startWithVideoMuted", true);
+            bundle.putBundle("config", config);
+
+            String did = "aa7k3mgk";
+            String tid = "aa9jsmjb";
+            String uid = "aar4tv84nc";
+
+            Bundle custom = new Bundle();
+            custom.putString("did", did);
+            custom.putString("tid", tid);
+            custom.putString("uid", uid);
+            bundle.putBundle("nativeBridge", custom);
+
+            ((JitsiMeetView) view).loadURLObject(bundle);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        CalendarEventsPackage.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 }
